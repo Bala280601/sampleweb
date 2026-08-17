@@ -5,7 +5,7 @@ import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
-const BACKEND_URL = 'http://3.110.169.228:30080';
+const BACKEND_URL = 'http://13.233.111.250:30080';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
