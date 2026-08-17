@@ -5,13 +5,39 @@ import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
-const BACKEND_URL = 'http://3.110.169.228:30080';
+const BACKEND_URL = 
+  import.meta.env.VITE_BACKEND_URL || 
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000'
+    : 'http://3.110.169.228:30080');
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [cartItems, setCartItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState(null);
+
+  const [activeProfile, setActiveProfile] = useState({
+    id: 1,
+    name: 'Bala',
+    email: 'bala@gmail.com',
+    address: '123 Main Street, Chennai, TN - 600001'
+  });
+
+  // Fetch initial profile from backend
+  const fetchActiveProfile = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/profile`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.name) {
+          setActiveProfile(data);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching profile in App:', err);
+    }
+  };
 
   // Trigger Toast Notification
   const triggerNotification = (message, type = 'success') => {
@@ -109,6 +135,7 @@ function App() {
 
   useEffect(() => {
     fetchCart();
+    fetchActiveProfile();
   }, []);
 
   // Compute Total Cart Quantity for Navbar Badge
@@ -133,6 +160,7 @@ function App() {
             onRemoveItem={handleRemoveItem} 
             onCheckout={handleCheckout} 
             setCurrentPage={setCurrentPage} 
+            activeProfile={activeProfile}
           />
         );
       case 'profile':
@@ -140,6 +168,8 @@ function App() {
           <Profile 
             backendUrl={BACKEND_URL} 
             triggerNotification={triggerNotification} 
+            activeProfile={activeProfile}
+            setActiveProfile={setActiveProfile}
           />
         );
       default:

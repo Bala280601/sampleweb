@@ -169,25 +169,47 @@ const db = {
     return rows;
   },
 
+  queryAllProfiles: async () => {
+    if (useFallback) return fallbackDb.users;
+    const [rows] = await pool.query('SELECT * FROM users ORDER BY id ASC');
+    return rows;
+  },
+
   queryProfile: async (userId = 1) => {
+    const id = parseInt(userId) || 1;
     if (useFallback) {
-      return fallbackDb.users.find(u => u.id === userId) || fallbackDb.users[0];
+      return fallbackDb.users.find(u => u.id === id) || fallbackDb.users[0];
     }
-    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
-    return rows[0];
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    return rows[0] || null;
+  },
+
+  createProfile: async (name, email, address) => {
+    if (useFallback) {
+      const newId = fallbackDb.users.length ? Math.max(...fallbackDb.users.map(u => u.id)) + 1 : 1;
+      const newUser = { id: newId, name, email, address };
+      fallbackDb.users.push(newUser);
+      return newUser;
+    }
+    const [result] = await pool.query(
+      'INSERT INTO users (name, email, address) VALUES (?, ?, ?)',
+      [name, email, address]
+    );
+    return { id: result.insertId, name, email, address };
   },
 
   updateProfile: async (userId = 1, name, email, address) => {
+    const id = parseInt(userId) || 1;
     if (useFallback) {
-      const idx = fallbackDb.users.findIndex(u => u.id === userId);
+      const idx = fallbackDb.users.findIndex(u => u.id === id);
       if (idx !== -1) {
         fallbackDb.users[idx] = { ...fallbackDb.users[idx], name, email, address };
         return fallbackDb.users[idx];
       }
       return null;
     }
-    await pool.query('UPDATE users SET name = ?, email = ?, address = ? WHERE id = ?', [name, email, address, userId]);
-    return { id: userId, name, email, address };
+    await pool.query('UPDATE users SET name = ?, email = ?, address = ? WHERE id = ?', [name, email, address, id]);
+    return { id, name, email, address };
   },
 
   queryCart: async (userId = 1) => {

@@ -22,10 +22,22 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-// 2. GET /api/profile - Get user profile (Default user ID = 1)
-app.get('/api/profile', async (req, res) => {
+// 2. GET /api/profiles - Get all user profiles
+app.get('/api/profiles', async (req, res) => {
   try {
-    const user = await db.queryProfile(1);
+    const profiles = await db.queryAllProfiles();
+    res.json(profiles);
+  } catch (error) {
+    console.error('Error fetching profiles:', error);
+    res.status(500).json({ error: 'Database error fetching profiles' });
+  }
+});
+
+// 2b. GET /api/profile - Get user profile by query id or default 1
+app.get('/api/profile', async (req, res) => {
+  const userId = req.query.userId || 1;
+  try {
+    const user = await db.queryProfile(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -36,14 +48,30 @@ app.get('/api/profile', async (req, res) => {
   }
 });
 
-// 3. PUT /api/profile - Update user profile
-app.put('/api/profile', async (req, res) => {
+// 2c. POST /api/profile - Create a new user profile
+app.post('/api/profile', async (req, res) => {
   const { name, email, address } = req.body;
   if (!name || !email || !address) {
     return res.status(400).json({ error: 'All fields (name, email, address) are required' });
   }
   try {
-    const updatedUser = await db.updateProfile(1, name, email, address);
+    const newUser = await db.createProfile(name.trim(), email.trim(), address.trim());
+    res.status(201).json({ message: 'Profile created successfully', user: newUser });
+  } catch (error) {
+    console.error('Error creating profile:', error);
+    res.status(500).json({ error: 'Database error creating profile' });
+  }
+});
+
+// 3. PUT /api/profile - Update user profile
+app.put('/api/profile', async (req, res) => {
+  const { id, name, email, address } = req.body;
+  const userId = id || req.query.userId || 1;
+  if (!name || !email || !address) {
+    return res.status(400).json({ error: 'All fields (name, email, address) are required' });
+  }
+  try {
+    const updatedUser = await db.updateProfile(userId, name.trim(), email.trim(), address.trim());
     res.json({ message: 'Profile updated successfully', user: updatedUser });
   } catch (error) {
     console.error('Error updating profile:', error);
