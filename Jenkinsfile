@@ -66,10 +66,17 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                kubectl rollout restart deployment backend -n devops
-                kubectl rollout restart deployment frontend -n devops
+                kubectl set image deployment/frontend \
+                frontend=bala280601/react-app:$IMAGE_TAG \
+                -n devops
+
+                kubectl set image deployment/backend \
+                backend=bala280601/node-api:$IMAGE_TAG \
+                -n devops
                 '''
             }
-        }
+        }        
+
+
     }
 }
