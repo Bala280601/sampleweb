@@ -5,11 +5,7 @@ import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
-const BACKEND_URL = 
-  import.meta.env.VITE_BACKEND_URL || 
-  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000'
-    : 'http://13.233.111.250:30080/');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
