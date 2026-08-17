@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { initializeDatabase, db } = require('./db');
 require('dotenv').config();
+const generateReceipt = require('./services/receiptService');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -153,6 +154,34 @@ app.post('/api/cart/checkout', async (req, res) => {
   } catch (error) {
     console.error('Error during checkout:', error);
     res.status(500).json({ error: 'Database error during checkout' });
+  }
+});
+
+app.get('/api/download-receipt', async (req, res) => {
+  try {
+
+    const user = await db.queryProfile(1);
+
+    const receiptUrl = await generateReceipt({
+      name: user.name,
+      email: user.email,
+      amount: 999
+    });
+
+    res.json({
+      success: true,
+      receiptUrl
+    });
+
+  } catch (error) {
+
+    console.error('Receipt Error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+
   }
 });
 
