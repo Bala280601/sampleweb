@@ -9,7 +9,7 @@ const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL || 
   (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:5000'
-    : 'http://3.110.169.228:30080');
+    : 'http://13.201.86.95:30080/');
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
