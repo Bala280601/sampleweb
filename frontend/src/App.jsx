@@ -7,7 +7,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ||
-  'http://http://13.206.237.10:30080';
+  'http://13.206.237.10:30080';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
