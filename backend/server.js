@@ -158,24 +158,32 @@ app.post('/api/cart/checkout', async (req, res) => {
 });
 
 app.get('/api/download-receipt', async (req, res) => {
+
   try {
 
     const user = await db.queryProfile(1);
 
-    const receiptUrl = await generateReceipt({
+    const result = await generateReceipt({
       name: user.name,
       email: user.email,
       amount: 999
     });
 
-    res.json({
-      success: true,
-      receiptUrl
-    });
+    res.setHeader(
+      "Content-Type",
+      "application/pdf"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=receipt.pdf"
+    );
+
+    res.send(result.pdfBuffer);
 
   } catch (error) {
 
-    console.error('Receipt Error:', error);
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -183,8 +191,8 @@ app.get('/api/download-receipt', async (req, res) => {
     });
 
   }
-});
 
+});
 // Start Server and Initialize Database
 async function start() {
   await initializeDatabase();

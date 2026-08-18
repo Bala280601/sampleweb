@@ -4,6 +4,7 @@ const s3 = require("../config/s3");
 
 async function generateReceipt(orderData) {
   return new Promise((resolve, reject) => {
+
     const doc = new PDFDocument();
 
     const buffers = [];
@@ -11,7 +12,9 @@ async function generateReceipt(orderData) {
     doc.on("data", buffers.push.bind(buffers));
 
     doc.on("end", async () => {
+
       try {
+
         const pdfBuffer = Buffer.concat(buffers);
 
         const key = `receipts/receipt-${Date.now()}.pdf`;
@@ -21,17 +24,22 @@ async function generateReceipt(orderData) {
             Bucket: process.env.S3_BUCKET_NAME,
             Key: key,
             Body: pdfBuffer,
-            ContentType: "application/pdf",
+            ContentType: "application/pdf"
           })
         );
 
         const url =
           `https://${process.env.S3_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/${key}`;
 
-        resolve(url);
+        resolve({
+          pdfBuffer,
+          url
+        });
+
       } catch (err) {
         reject(err);
       }
+
     });
 
     doc.fontSize(20).text("Order Receipt");
@@ -43,6 +51,7 @@ async function generateReceipt(orderData) {
     doc.text(`Amount: ${orderData.amount}`);
 
     doc.end();
+
   });
 }
 
